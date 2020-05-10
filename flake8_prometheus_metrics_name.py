@@ -5,15 +5,20 @@ from prometheus_client.metrics import MetricWrapperBase
 
 class Checker:
     name = 'flake8-prometheus-metrics-name'
-    version = '0.1.1'
+    version = '0.1.3'
 
     _error_template = (
         'PRM902: Metric name should start with one of following prefixes: {}'
     )
     _valid_name_prefixes = ()
+    _disabled = False
 
     def __init__(self, tree, filename):
-        # `filename` arg is requirement to implement flake8 checker interface
+        # `filename` arg is required to implement flake8 checker interface
+
+        if self._disabled:
+            return
+
         self._tree = tree
 
         if not self._valid_name_prefixes:
@@ -40,15 +45,31 @@ class Checker:
             parse_from_config=True,
             comma_separated_list=True,
         )
+        parser.add_option(
+            "--prometheus-metrics-disabled",
+            default=False,
+            action="store",
+            type="int",
+            help="Enabling linter",
+            parse_from_config=True,
+            comma_separated_list=False,
+        )
 
     @classmethod
     def parse_options(cls, options):
+        cls._disabled = bool(options.prometheus_metrics_disabled)
+        if cls._disabled:
+            return
+
         prefixes = options.prometheus_metrics_name_prefixes
         if not isinstance(prefixes, (list, tuple)):
             prefixes = prefixes.split(',')
         cls._valid_name_prefixes = tuple(p.strip() for p in prefixes)
 
     def run(self):
+        if self._disabled:
+            return []
+
         for statement in ast.walk(self._tree):
             if not isinstance(statement, ast.Call):
                 continue

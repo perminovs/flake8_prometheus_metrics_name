@@ -32,3 +32,10 @@ Run flake8 `flake8 some_modue.py` cause following warnings:
 some_module.py:4:1: PRM902: Metric name should start with one of following prefixes: "kek_", "lol_", got "some_name1" instead
 some_module.py:6:1: PRM902: Metric name should start with one of following prefixes: "kek_", "lol_", got "some_name3" instead
 ```
+
+Plugin also may be disabled by adding following option to `setup.cfg`:
+```buildoutcfg
+[flake8]
+prometheus-metrics-disabled = 1
+```
+then AST-tree nodes will not be analized for metrics name on flake8 run.

@@ -79,3 +79,13 @@ def test_calling_object_attribute():
             "a.method('data', arg=4)")
     tree = ast.parse(code)
     assert not list(Checker(tree, 'module.py').run())
+
+
+@pytest.mark.parametrize('statement', [
+    'c = {}("bad_name", "some description")',
+])
+@pytest.mark.parametrize('klass', [Counter], indirect=True)
+def test_disabling(statement, klass):
+    Checker._disabled = True
+    tree = ast.parse(statement.format(klass.__name__))
+    assert not list(Checker(tree, 'module.py').run())
