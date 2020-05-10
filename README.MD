@@ -38,4 +38,4 @@ Plugin also may be disabled by adding following option to `setup.cfg`:
 [flake8]
 prometheus-metrics-disabled = 1
 ```
-then AST-tree nodes will not be analized for metrics name on flake8 run.
+then AST nodes will not be analized for metrics name on flake8 run.
