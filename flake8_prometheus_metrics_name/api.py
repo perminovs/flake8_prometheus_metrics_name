@@ -2,10 +2,12 @@ import ast
 
 from prometheus_client.metrics import MetricWrapperBase
 
+from flake8_prometheus_metrics_name.cheker import validate_statement, MetricNameValidatioError
 
-class Checker:
+
+class Api:
     name = 'flake8-prometheus-metrics-name'
-    version = '0.1.3'
+    version = '0.1.5'
 
     _error_template = (
         'PRM902: Metric name should start with one of following prefixes: {}'
@@ -29,9 +31,9 @@ class Checker:
         prefixes = ', '.join(f'"{s}"' for s in self._valid_name_prefixes)
         self._error_msg = self._error_template.format(prefixes)
 
-        self._node_id_to_prometheus = {
+        self._called_node_to_prometheus = {
             klass.__name__: klass
-            for klass in _get_all_subclasses(MetricWrapperBase)
+            for klass in _collect_subclasses(MetricWrapperBase)
         }
 
     @classmethod
@@ -71,55 +73,26 @@ class Checker:
             return []
 
         for statement in ast.walk(self._tree):
-            if not isinstance(statement, ast.Call):
-                continue
-
-            called = getattr(
-                statement.func, 'id',
-                getattr(statement.func, 'attr', None),
-            )
-            if called is None:
-                continue
-            cls = self._node_id_to_prometheus.get(called)
-            if not cls:
-                continue
-
-            args = [_parse_argument(arg) for arg in statement.args]
-            kwargs = {
-                kw.arg: _parse_argument(kw.value)
-                for kw in statement.keywords
-            }
             try:
-                metric = cls(*args, **kwargs)
-            except (ValueError, TypeError):
-                continue
-
-            for prefix in self._valid_name_prefixes:
-                if metric._name.startswith(prefix):
-                    break
-            else:
+                validate_statement(
+                    statement=statement,
+                    valid_name_prefixes=self._valid_name_prefixes,
+                    prometheus_mapping=self._called_node_to_prometheus,
+                )
+            except MetricNameValidatioError as error:
                 yield (
                     statement.lineno,
                     statement.col_offset,
-                    f'{self._error_msg}, got "{metric._name}" instead',
+                    f'{self._error_msg}, got "{error.name}" instead',
                     type(self),
                 )
 
 
-def _parse_argument(ast_node):
-    if isinstance(ast_node, ast.Constant):
-        return ast_node.value
-    if isinstance(ast_node, ast.Tuple):
-        return [_parse_argument(inner_node) for inner_node in ast_node.elts]
-
-    return ast_node
-
-
-def _get_all_subclasses(klass):
+def _collect_subclasses(klass):
     all_subclasses = []
 
     for subclass in klass.__subclasses__():
         all_subclasses.append(subclass)
-        all_subclasses.extend(_get_all_subclasses(subclass))
+        all_subclasses.extend(_collect_subclasses(subclass))
 
     return all_subclasses

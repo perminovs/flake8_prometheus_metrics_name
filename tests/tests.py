@@ -3,18 +3,18 @@ import ast
 import pytest
 from prometheus_client import (Counter, Histogram, Gauge, Summary, Info)
 
-from flake8_prometheus_metrics_name import Checker
+from flake8_prometheus_metrics_name.api import Api
 
 GENERAL_METRICS = [Counter, Histogram, Gauge, Summary, Info]
 
 VALID_PREFIX = 'some_'
-base_error = Checker._error_template.format(f'"{VALID_PREFIX}"')
+base_error = Api._error_template.format(f'"{VALID_PREFIX}"')
 BAD_NAME_ERROR = f'{base_error}, got "bad_name" instead'
 
 
 @pytest.fixture(autouse=True)
 def _set_valid_prefix():
-    Checker._valid_name_prefixes = (VALID_PREFIX, )
+    Api._valid_name_prefixes = (VALID_PREFIX,)
 
 
 @pytest.mark.parametrize('statement', [
@@ -26,7 +26,7 @@ def _set_valid_prefix():
 @pytest.mark.parametrize('klass', GENERAL_METRICS, indirect=True)
 def test_check_name_ok(statement, klass):
     statement = statement.format(klass.__name__)
-    assert not list(Checker(ast.parse(statement), 'module.py').run())
+    assert not list(Api(ast.parse(statement), 'module.py').run())
 
 
 @pytest.mark.parametrize('statement', [
@@ -39,7 +39,7 @@ def test_check_name_ok(statement, klass):
 @pytest.mark.parametrize('klass', GENERAL_METRICS, indirect=True)
 def test_check_name_fail(statement, klass, call_prefix):
     tree = ast.parse(statement.format(call_prefix, klass.__name__))
-    actual_error = list(Checker(tree, 'module.py').run())[0][2]
+    actual_error = list(Api(tree, 'module.py').run())[0][2]
     assert actual_error == BAD_NAME_ERROR
 
 
@@ -57,18 +57,18 @@ def test_check_name_fail(statement, klass, call_prefix):
 ])
 def test_cannot_instance_metric(statement, klass):
     tree = ast.parse(statement.format(klass.__name__))
-    assert not list(Checker(tree, 'module.py').run())
+    assert not list(Api(tree, 'module.py').run())
 
 
 def test_full_metric_definition(full_definition):
     tree = ast.parse(full_definition)
-    assert not list(Checker(tree, 'module.py').run())
+    assert not list(Api(tree, 'module.py').run())
 
 
 def test_no_prefix_provided():
-    Checker._valid_name_prefixes = ()
+    Api._valid_name_prefixes = ()
     with pytest.raises(ValueError) as ve:
-        Checker(None, None)
+        Api(None, None)
 
     assert ve.value.args[0] == (
         'No prefixes for metric name provided. '
@@ -79,7 +79,7 @@ def test_calling_object_attribute():
     code = ("a = A()\n"
             "a.method('data', arg=4)")
     tree = ast.parse(code)
-    assert not list(Checker(tree, 'module.py').run())
+    assert not list(Api(tree, 'module.py').run())
 
 
 @pytest.mark.parametrize('statement', [
@@ -87,6 +87,6 @@ def test_calling_object_attribute():
 ])
 @pytest.mark.parametrize('klass', [Counter], indirect=True)
 def test_disabling(statement, klass):
-    Checker._disabled = True
+    Api._disabled = True
     tree = ast.parse(statement.format(klass.__name__))
-    assert not list(Checker(tree, 'module.py').run())
+    assert not list(Api(tree, 'module.py').run())

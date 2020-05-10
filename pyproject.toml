@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flake8-prometheus-metrics-name"
-version = "0.1.4"
+version = "0.1.5"
 description = "Flake8 plugin for prometheus metric name validation"
 authors = ["perminovs"]
 license = "MIT"
@@ -10,7 +10,7 @@ repository = "https://github.com/perminovs/flake8_prometheus_metrics_name"
 keywords = ['flake8', 'linter', 'python', 'prometheus']
 
 [tool.poetry.plugins."flake8.extension"]
-PRM = 'flake8_prometheus_metrics_name:Checker'
+PRM = 'flake8_prometheus_metrics_name.api:Api'
 
 [tool.poetry.dependencies]
 python = "^3.8"
