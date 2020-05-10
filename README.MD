@@ -29,6 +29,6 @@ prometheus-metrics-name-prefixes =
 
 Run flake8 `flake8 some_modue.py` cause following warnings:
 ```bash
-some_package.py:4:1: PRM902: Metric name should start with one of following prefixes: "kek_", "lol_", got "some_name1" instead
-some_package.py:6:1: PRM902: Metric name should start with one of following prefixes: "kek_", "lol_", got "some_name3" instead
+some_module.py:4:1: PRM902: Metric name should start with one of following prefixes: "kek_", "lol_", got "some_name1" instead
+some_module.py:6:1: PRM902: Metric name should start with one of following prefixes: "kek_", "lol_", got "some_name3" instead
 ```
