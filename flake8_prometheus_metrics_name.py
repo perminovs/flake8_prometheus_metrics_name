@@ -5,7 +5,7 @@ from prometheus_client.metrics import MetricWrapperBase
 
 class Checker:
     name = 'flake8-prometheus-metrics-name'
-    version = '0.0.1'
+    version = '0.1.1'
 
     _error_template = (
         'PRM902: Metric name should start with one of following prefixes: {}'
@@ -32,7 +32,7 @@ class Checker:
     @classmethod
     def add_options(cls, parser):
         parser.add_option(
-            "--name-prefixes",
+            "--prometheus-metrics-name-prefixes",
             default="",
             action="store",
             type="string",
@@ -43,7 +43,7 @@ class Checker:
 
     @classmethod
     def parse_options(cls, options):
-        prefixes = options.name_prefixes
+        prefixes = options.prometheus_metrics_name_prefixes
         if not isinstance(prefixes, (list, tuple)):
             prefixes = prefixes.split(',')
         cls._valid_name_prefixes = tuple(p.strip() for p in prefixes)
