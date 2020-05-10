@@ -3,18 +3,24 @@ import ast
 from prometheus_client.metrics import MetricWrapperBase
 
 
-class PrometheusChecker:
-    name = 'flake8-prometheus'
+class Checker:
+    name = 'flake8-prometheus-metrics-name'
     version = '0.0.1'
 
     _error_template = (
-        'PRM902: Metric name should start with one of prefixes: {}'
+        'PRM902: Metric name should start with one of following prefixes: {}'
     )
-    _valid_name_prefixes = ('some_', )  # TODO configurable
+    _valid_name_prefixes = ()
 
     def __init__(self, tree, filename):
+        # `filename` arg is requirement to implement flake8 checker interface
         self._tree = tree
 
+        if not self._valid_name_prefixes:
+            raise ValueError(
+                'No prefixes for metric name provided. '
+                'Ensure option "name-prefixes" is set.'
+            )
         prefixes = ', '.join(f'"{s}"' for s in self._valid_name_prefixes)
         self._error_msg = self._error_template.format(prefixes)
 
@@ -22,6 +28,25 @@ class PrometheusChecker:
             klass.__name__: klass
             for klass in _get_all_subclasses(MetricWrapperBase)
         }
+
+    @classmethod
+    def add_options(cls, parser):
+        parser.add_option(
+            "--name-prefixes",
+            default="",
+            action="store",
+            type="string",
+            help="Possible prometheus metric name prefixes",
+            parse_from_config=True,
+            comma_separated_list=True,
+        )
+
+    @classmethod
+    def parse_options(cls, options):
+        prefixes = options.name_prefixes
+        if not isinstance(prefixes, (list, tuple)):
+            prefixes = prefixes.split(',')
+        cls._valid_name_prefixes = tuple(p.strip() for p in prefixes)
 
     def run(self):
         for statement in ast.walk(self._tree):
