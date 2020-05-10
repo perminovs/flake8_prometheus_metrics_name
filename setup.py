@@ -28,7 +28,13 @@ setup(
         'flake8',
         'prometheus_client',
     ],
+    url='https://github.com/perminovs/flake8_prometheus',
+    packages=['flake8_prometheus'],
+    py_modules=['flake8_prometheus'],
+    include_package_data=True,
     entry_points={
-        'flake8.extension': ['PRM902 = flake8_prometheus:PrometheusChecker'],
+        'flake8.extension': [
+            'PRM = flake8_prometheus.flake8_prometheus:PrometheusChecker',
+        ],
     },
 )

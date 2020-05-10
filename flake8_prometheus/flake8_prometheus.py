@@ -4,6 +4,9 @@ from prometheus_client.metrics import MetricWrapperBase
 
 
 class PrometheusChecker:
+    name = 'flake8-prometheus'
+    version = '0.0.1'
+
     _error_template = (
         'PRM902: Metric name should start with one of prefixes: {}'
     )
