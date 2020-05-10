@@ -71,4 +71,11 @@ def test_no_prefix_provided():
 
     assert ve.value.args[0] == (
         'No prefixes for metric name provided. '
-        'Ensure option "name-prefixes" is set.')
+        'Ensure option "prometheus-metrics-name-prefixes" is set.')
+
+
+def test_calling_object_attribute():
+    code = ("a = A()\n"
+            "a.method('data', arg=4)")
+    tree = ast.parse(code)
+    assert not list(Checker(tree, 'module.py').run())

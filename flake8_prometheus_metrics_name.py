@@ -19,7 +19,7 @@ class Checker:
         if not self._valid_name_prefixes:
             raise ValueError(
                 'No prefixes for metric name provided. '
-                'Ensure option "name-prefixes" is set.'
+                'Ensure option "prometheus-metrics-name-prefixes" is set.'
             )
         prefixes = ', '.join(f'"{s}"' for s in self._valid_name_prefixes)
         self._error_msg = self._error_template.format(prefixes)
@@ -53,7 +53,10 @@ class Checker:
             if not isinstance(statement, ast.Call):
                 continue
 
-            cls = self._node_id_to_prometheus.get(statement.func.id)
+            called = getattr(statement.func, 'id', None)
+            if called is None:
+                continue
+            cls = self._node_id_to_prometheus.get(called)
             if not cls:
                 continue
 
