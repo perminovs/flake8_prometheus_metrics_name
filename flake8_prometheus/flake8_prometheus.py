@@ -1,0 +1,70 @@
+import ast
+
+from prometheus_client.metrics import MetricWrapperBase
+
+
+class PrometheusChecker:
+    _error_template = (
+        'PRM902: Metric name should start with one of prefixes: {}'
+    )
+    _valid_name_prefixes = ('some_', )  # TODO configurable
+
+    def __init__(self, tree, filename):
+        self._tree = tree
+
+        prefixes = ', '.join(f'"{s}"' for s in self._valid_name_prefixes)
+        self._error_msg = self._error_template.format(prefixes)
+
+        self._node_id_to_prometheus = {
+            klass.__name__: klass
+            for klass in _get_all_subclasses(MetricWrapperBase)
+        }
+
+    def run(self):
+        for statement in ast.walk(self._tree):
+            if not isinstance(statement, ast.Call):
+                continue
+
+            cls = self._node_id_to_prometheus.get(statement.func.id)
+            if not cls:
+                continue
+
+            args = [_parse_argument(arg) for arg in statement.args]
+            kwargs = {
+                kw.arg: _parse_argument(kw.value)
+                for kw in statement.keywords
+            }
+            try:
+                metric = cls(*args, **kwargs)
+            except (ValueError, TypeError):
+                continue
+
+            for prefix in self._valid_name_prefixes:
+                if metric._name.startswith(prefix):
+                    break
+            else:
+                yield (
+                    statement.lineno,
+                    statement.col_offset,
+                    f'{self._error_msg}, got "{metric._name}" instead',
+                    type(self),
+                )
+
+
+def _parse_argument(ast_node):
+    if isinstance(ast_node, ast.Constant):
+        return ast_node.value
+    if isinstance(ast_node, ast.Tuple):
+        return [_parse_argument(inner_node) for inner_node in ast_node.elts]
+
+    return ast_node
+
+
+def _get_all_subclasses(klass):
+    all_subclasses = []
+
+    for subclass in klass.__subclasses__():
+        all_subclasses.append(subclass)
+        all_subclasses.extend(_get_all_subclasses(subclass))
+
+    return all_subclasses
