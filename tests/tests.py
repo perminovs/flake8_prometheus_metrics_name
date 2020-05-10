@@ -3,7 +3,7 @@ import ast
 import pytest
 from prometheus_client import (Counter, Histogram, Gauge, Summary, Info)
 
-from flake8_prometheus.flake8_prometheus import PrometheusChecker
+from flake8_prometheus import PrometheusChecker
 
 GENERAL_METRICS = [Counter, Histogram, Gauge, Summary, Info]
 
