@@ -74,7 +74,10 @@ class Checker:
             if not isinstance(statement, ast.Call):
                 continue
 
-            called = getattr(statement.func, 'id', None)
+            called = getattr(
+                statement.func, 'id',
+                getattr(statement.func, 'attr', None),
+            )
             if called is None:
                 continue
             cls = self._node_id_to_prometheus.get(called)

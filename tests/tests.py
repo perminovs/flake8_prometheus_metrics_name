@@ -30,14 +30,15 @@ def test_check_name_ok(statement, klass):
 
 
 @pytest.mark.parametrize('statement', [
-    'c = {}("bad_name", "some description")',
-    'c = {}("bad_name", documentation="some description")',
-    "c = {}(name='bad_name', documentation='some doc')",
-    "c = {}(documentation='some doc', name='bad_name')",
+    'c = {}{}("bad_name", "some description")',
+    'c = {}{}("bad_name", documentation="some description")',
+    "c = {}{}(name='bad_name', documentation='some doc')",
+    "c = {}{}(documentation='some doc', name='bad_name')",
 ])
+@pytest.mark.parametrize('call_prefix', ['', 'pc.'])
 @pytest.mark.parametrize('klass', GENERAL_METRICS, indirect=True)
-def test_check_name_fail(statement, klass):
-    tree = ast.parse(statement.format(klass.__name__))
+def test_check_name_fail(statement, klass, call_prefix):
+    tree = ast.parse(statement.format(call_prefix, klass.__name__))
     actual_error = list(Checker(tree, 'module.py').run())[0][2]
     assert actual_error == BAD_NAME_ERROR
 
