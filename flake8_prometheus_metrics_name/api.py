@@ -1,8 +1,12 @@
 import ast
+from typing import Any, Sequence
 
 from prometheus_client.metrics import MetricWrapperBase
 
-from flake8_prometheus_metrics_name.cheker import validate_statement, MetricNameValidatioError
+from flake8_prometheus_metrics_name.cheker import (
+    MetricNameValidatioError,
+    validate_statement,
+)
 
 
 class Api:
@@ -12,12 +16,15 @@ class Api:
     _error_template = (
         'PRM902: Metric name should start with one of following prefixes: {}'
     )
-    _valid_name_prefixes = ()
+    _valid_name_prefixes: Sequence[str] = ()
     _disabled = False
 
-    def __init__(self, tree, filename):
+    def __init__(
+        self,
+        tree: ast.AST,
         # `filename` arg is required to implement flake8 checker interface
-
+        filename: str,  # pylint: disable=W0613
+    ) -> None:
         if self._disabled:
             return
 
@@ -37,28 +44,28 @@ class Api:
         }
 
     @classmethod
-    def add_options(cls, parser):
+    def add_options(cls, parser: Any) -> None:
         parser.add_option(
-            "--prometheus-metrics-name-prefixes",
-            default="",
-            action="store",
-            type="string",
-            help="Possible prometheus metric name prefixes",
+            '--prometheus-metrics-name-prefixes',
+            default='',
+            action='store',
+            type='string',
+            help='Possible prometheus metric name prefixes',
             parse_from_config=True,
             comma_separated_list=True,
         )
         parser.add_option(
-            "--prometheus-metrics-disabled",
+            '--prometheus-metrics-disabled',
             default=False,
-            action="store",
-            type="int",
-            help="Enabling linter",
+            action='store',
+            type='int',
+            help='Enabling linter',
             parse_from_config=True,
             comma_separated_list=False,
         )
 
     @classmethod
-    def parse_options(cls, options):
+    def parse_options(cls, options: Any) -> None:
         cls._disabled = bool(options.prometheus_metrics_disabled)
         if cls._disabled:
             return
@@ -68,11 +75,11 @@ class Api:
             prefixes = prefixes.split(',')
         cls._valid_name_prefixes = tuple(p.strip() for p in prefixes)
 
-    def run(self):
+    def run(self):  # type: ignore  # pylint: disable=R1710
         if self._disabled:
             return []
 
-        for statement in ast.walk(self._tree):
+        for statement in ast.walk(self._tree):  # noqa: R503
             try:
                 validate_statement(
                     statement=statement,
@@ -88,7 +95,7 @@ class Api:
                 )
 
 
-def _collect_subclasses(klass):
+def _collect_subclasses(klass: type) -> Sequence[type]:
     all_subclasses = []
 
     for subclass in klass.__subclasses__():
