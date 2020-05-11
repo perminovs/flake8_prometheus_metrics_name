@@ -1,9 +1,14 @@
+.PHONY: test test-silence lint pretty
+
 BIN = .venv/bin/
 CODE = flake8_prometheus_metrics_name
 TEST = tests
 
 test:
 	PYTHONPATH=$(CODE) $(BIN)pytest --verbosity=2 --showlocals --strict --cov=$(CODE) $(TEST)/tests.py
+
+test-silence:
+	PYTHONPATH=$(CODE) $(BIN)pytest --cov=$(CODE) $(TEST)/tests.py
 
 lint:
 	$(BIN)flake8 --jobs 4 --statistics --show-source $(CODE) $(TEST)

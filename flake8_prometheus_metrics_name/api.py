@@ -8,7 +8,7 @@ from flake8_prometheus_metrics_name.cheker import (
     validate_statement,
 )
 
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 
 
 class Api:
