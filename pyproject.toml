@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flake8-prometheus-metrics-name"
-version = "0.1.7"
+version = "0.1.8"
 description = "Flake8 plugin for prometheus metric name validation"
 authors = ["perminovs"]
 license = "MIT"
@@ -14,7 +14,7 @@ PRM = 'flake8_prometheus_metrics_name.api:Api'
 
 [tool.poetry.dependencies]
 python = ">=3.6,<4.0"
-flake8 = "^3.7.9"
+flake8 = "^4.0.0"
 prometheus_client = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
