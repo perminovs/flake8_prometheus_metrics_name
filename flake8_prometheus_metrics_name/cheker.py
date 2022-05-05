@@ -25,9 +25,15 @@ def validate_statement(
         return
     cls = prometheus_mapping[called]
 
-    args = [_parse_call_arguments(arg) for arg in statement.args]
+    args = [
+        _parse_call_arguments(arg)
+        for arg in statement.args
+        if not isinstance(arg, ast.Name)
+    ]
     kwargs = {
-        kw.arg: _parse_call_arguments(kw.value) for kw in statement.keywords
+        kw.arg: _parse_call_arguments(kw.value)
+        for kw in statement.keywords
+        if not isinstance(kw.value, ast.Name)
     }
     try:
         metric = cls(*args, **kwargs)
