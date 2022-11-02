@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flake8-prometheus-metrics-name"
-version = "0.1.9"
+version = "0.1.10"
 description = "Flake8 plugin for prometheus metric name validation"
 authors = ["perminovs"]
 license = "MIT"
@@ -18,7 +18,7 @@ flake8 = "^4.0.0"
 prometheus_client = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.4.2"
+pytest = "^6.2.5"
 typed-ast = ">=1.4.4"
 black = "^19.10b0"
 flake8-awesome = "^1.2.1"
