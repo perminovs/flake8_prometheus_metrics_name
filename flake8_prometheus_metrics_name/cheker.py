@@ -2,6 +2,15 @@ import ast
 from typing import Any, Dict, Sequence, Type
 
 from prometheus_client.metrics import MetricWrapperBase
+from prometheus_client.registry import CollectorRegistry
+
+
+class RegistryMock(CollectorRegistry):
+    def register(self, collector: Any):
+        pass
+
+
+_REGISTRY = RegistryMock()
 
 
 class MetricNameValidatioError(Exception):
@@ -55,5 +64,6 @@ def _parse_call_arguments(ast_node: ast.expr) -> Any:
         return [
             _parse_call_arguments(inner_node) for inner_node in ast_node.elts
         ]
-
+    if isinstance(ast_node, ast.Attribute) and ast_node.attr == 'registry':
+        return _REGISTRY
     return ast_node
