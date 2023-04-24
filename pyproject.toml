@@ -15,7 +15,7 @@ PRM = 'flake8_prometheus_metrics_name.api:Api'
 [tool.poetry.dependencies]
 python = ">=3.6,<4.0"
 flake8 = "^4.0.0"
-prometheus_client = "^0.7.1"
+prometheus_client = ">=0.7.1,<=0.16.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
