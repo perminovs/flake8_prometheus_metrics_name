@@ -6,7 +6,7 @@ from prometheus_client.registry import CollectorRegistry
 
 
 class RegistryMock(CollectorRegistry):
-    def register(self, collector: Any):
+    def register(self, collector: Any) -> None:
         pass
 
 
@@ -28,7 +28,7 @@ def validate_statement(
         return
 
     called = getattr(
-        statement.func, 'id', getattr(statement.func, 'attr', None),
+        statement.func, 'id', getattr(statement.func, 'attr', None)
     )
     if called is None or called not in prometheus_mapping:
         return
@@ -45,7 +45,7 @@ def validate_statement(
         if not isinstance(kw.value, ast.Name)
     }
     try:
-        metric = cls(*args, **kwargs)
+        metric = cls(*args, **kwargs)  # type: ignore
     except (ValueError, TypeError):
         return
 
