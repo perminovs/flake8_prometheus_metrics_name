@@ -60,7 +60,7 @@ class Api:
             '--prometheus-metrics-disabled',
             default=False,
             action='store',
-            type='int',
+            type=int,
             help='Enabling linter',
             parse_from_config=True,
             comma_separated_list=False,
