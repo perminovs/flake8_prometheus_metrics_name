@@ -1,8 +1,16 @@
 .PHONY: test test-silence lint pretty
 
-BIN = .venv/bin/
+VENV = .venv
+BIN = $(VENV)/bin/
 CODE = flake8_prometheus_metrics_name
 TEST = tests
+PYTHON_VERSION = 3.12
+
+install:
+	test -d $(VENV) || python$(PYTHON_VERSION) -m venv $(VENV)
+	$(BIN)/python -m pip install --upgrade pip
+	$(BIN)/python -m pip install "poetry==1.6.1"
+	$(BIN)/poetry install
 
 test:
 	PYTHONPATH=$(CODE) $(BIN)pytest --verbosity=2 --showlocals --strict --cov=$(CODE) $(TEST)/tests.py

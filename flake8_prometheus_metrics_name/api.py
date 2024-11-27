@@ -8,7 +8,7 @@ from flake8_prometheus_metrics_name.cheker import (
     validate_statement,
 )
 
-__version__ = '0.1.13'
+__version__ = '0.1.14'
 
 
 class Api:
@@ -60,7 +60,7 @@ class Api:
             '--prometheus-metrics-disabled',
             default=False,
             action='store',
-            type='int',
+            type=int,
             help='Enabling linter',
             parse_from_config=True,
             comma_separated_list=False,
